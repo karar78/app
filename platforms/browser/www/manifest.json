@@ -5,7 +5,7 @@
   "short_name": "Quiz Master",
   "version": "com.karar.app",
   "description": "Quiz Master",
-  "author": "Apache Cordova Team",
+  "author": "Karar Haider",
   "icons": [],
   "orientation": "portrait",
   "start_url": "index.html"

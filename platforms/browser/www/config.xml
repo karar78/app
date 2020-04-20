@@ -2,10 +2,10 @@
 <widget id="com.karar.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Quiz Master</name>
     <description>
-      Quiz Master
+        Quiz Master
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="karar@haktechlondon.co.uk" href="http://cordova.io">
+        Karar Haider
     </author>
     <content src="index.html" />
     <access origin="*" />
