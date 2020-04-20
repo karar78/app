@@ -1,0 +1,15 @@
+
+keytool -list -v -storetype pkcs12 -keystore myKeystore.p12 > cert.txt
+
+//jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore mykeystore.p12 app-release-unsigned.apk quizmaster
+
+cordova build android --release
+
+jarsigner -storetype pkcs12 -keystore mykeystore.p12 app-release-unsigned.apk "ks-localhost"
+
+zipalign -v 4 app-release-unsigned.apk quiz-master.apk
+
+
+cordova build android --prod --release -- --packageType=bundle
+
+

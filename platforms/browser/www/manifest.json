@@ -1,0 +1,12 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "Quiz Master",
+  "short_name": "Quiz Master",
+  "version": "com.karar.app",
+  "description": "Quiz Master",
+  "author": "Apache Cordova Team",
+  "icons": [],
+  "orientation": "portrait",
+  "start_url": "index.html"
+}

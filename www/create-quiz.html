@@ -1,0 +1,182 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+
+    function resetForm() {
+        document.getElementById("myForm").reset();
+    }
+
+    function completeProcess(){
+      var status = $("#status").val();
+      var code = $("#code").val();
+      var time = $("#time").val();
+      var dataString =  "status=" + status + "&code=" + code + "&time=" + time;
+      if ($.trim(time).length > 0 ) {
+          $.ajax({
+              type: "POST",
+              url: host + "/quiz",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+
+              $('#list').html('<div class="item"><label>Your Code for this quiz is: </label><H1>'+obj.code+'</H1>  </div>');
+
+                console.log("Result : ", e);
+              },
+              error: function (e) {
+                $("#next").val('ERR');
+                console.log("ERROR : ", e.responseText);
+
+    }
+
+          });
+      }
+      return false;
+    }
+
+    function submitForm(){
+      var question = $("#question").val();
+      var answer = $("#answer").val();
+      var wrong1 = $("#wrong1").val();
+      var wrong2 = $("#wrong2").val();
+      var wrong3 = $("#wrong3").val();
+      var status = $("#status").val();
+      var code = $("#code").val();
+      var time = $("#time").val();
+      var dataString = "question=" + question + "&answer=" + answer + "&wrong1=" + wrong1 + "&wrong2=" + wrong2 + "&wrong3=" + wrong3 + "&status=" + status + "&code=" + code + "&time=" + time;
+      if ($.trim(question).length > 0 & $.trim(answer).length > 0 & $.trim(wrong1).length > 0 & $.trim(wrong2).length > 0 & $.trim(wrong3).length > 0) {
+          $.ajax({
+              type: "POST",
+              url: host + "/quiz",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+              xhrFields: {withCredentials: false},
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+                console.log("Result : ", e);
+                if(obj.status=="next"){//Next button is pressed. Keeps on adding questions
+                    $("#next").val("Next");
+                    var obj = jQuery.parseJSON(e);
+                    console.log("Code: " + obj.code);
+                    resetForm();
+                    localStorage.setItem('code', obj.code);
+                    document.getElementById("code").value= obj.code;
+                }
+                else if(obj.status=="finish"){//Finish button is pressed. remove form and ask for timer
+                  $("#next").hide();
+                  $("#finish").hide();
+                  $('#list').html('<div class="item"><label>Total Time in Seconds</label><input type="text" id="time" value="" style="Width:200px" />  </div>');
+                    console.log("Code: " + obj.code);
+
+                    document.getElementById("code").value= obj.code;
+                    $('#submit1').show();
+                }
+                else if(obj.status=="submit"){//Next button is pressed. Keeps on adding questions
+                    $('#list').html('<div class="item">  <label>Code: '+obj.code + '</label></div>');
+                    console.log("Code: " + obj.code);
+
+                    document.getElementById("code").value= obj.code;
+                }
+              },
+              error: function(xhr, status, error){
+                $("#insert").val('ERR');
+                if(xhr.status==401)
+                  window.location.href = "index.html";
+              }
+
+          });
+      }
+      return false;
+    }
+    $(document).ready(function() {
+        $("#submit1").hide();
+        $("#next").click(function() {
+            $("#status").val('next');
+          submitForm();
+        });
+
+        $("#finish").click(function() {
+            $("#status").val('finish');
+          submitForm();
+        });
+        $("#submit1").click(function() {
+            $("#next").hide();
+            $("#finish").hide();
+            $("#submit1").hide();
+          $("#status").val('submit');
+          completeProcess();
+        });
+    });
+
+    </script>
+</head>
+
+<body>
+    <div class="bar bar-header bar-positive" style="margin-bottom:1px;">
+        <h1 class="title">New Quiz</h1>
+        <a class="button button-clear" href="play-quiz.html">Play Quiz</a>
+    </div>
+    <br/>
+    <br/>
+    <form id="myForm">
+    <div id="list" class="list">
+
+        <div class="item">
+            <label>Question</label>
+            <textarea id="question"> </textarea>
+        </div>
+        <div class="item">
+            <label>Correct Answer</label>
+            <input type="text" id="answer" value="" />
+        </div>
+        <div class="item">
+            <label>Wrong answer 1</label>
+            <input type="text" id="wrong1" value="" />
+        </div>
+
+        <div class="item">
+            <label>Wrong answer 2</label>
+            <input type="text" id="wrong2" value="" />
+        </div>
+
+        <div class="item">
+            <label>Wrong answer 3</label>
+            <input type="text" id="wrong3" value="" />
+        </div>
+
+    </div>
+
+    <div class="item">
+        <input type="hidden" id="time" value="20"/>
+        <input type="button" id="next" class="button button-block" value="Next" />
+        <input type="button" id="finish" class="button button-block" value="Finish" />
+    </div>
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+      <input type="button" id="submit1" class="button button-block" value="Submit" />
+    </form>
+</body>
+
+</html>

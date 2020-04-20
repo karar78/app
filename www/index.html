@@ -1,0 +1,92 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+
+    function submitForm(){
+      var username = $("#username").val();
+      var password = $("#password").val();
+      var status = $("#status").val();
+      var name = $("#name").val();
+      localStorage.setItem('user', name);
+      var dataString = "username=" + username + "&password=" + password + "&status=" + status + "&name=" + name;
+      if ($.trim(name).length > 0 ) {
+          $.ajax({
+              type: "POST",
+              url: host + "/authenticate",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+              xhrFields: {withCredentials: false},
+              cache: false,
+
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+                console.log("Result : ", e);
+                if(obj.status=="success"){//Successfully logged in
+                    console.log("Token: " + obj.token);
+                    localStorage.setItem('token', obj.token);
+                    window.location.href = "create-quiz.html";
+                }
+                else if(obj.status=="fail"){//Finish button is pressed. remove form and ask for timer
+                  $('#list').html('<div class="item"<label>'+obj.message+'</label></div>');
+                }
+
+              },
+              error: function (e) {
+                $("#next").val('ERR');
+                console.log("ERROR : ", e.responseText);
+
+    }
+
+          });
+      }
+      return false;
+    }
+    $(document).ready(function() {
+        $("#login").click(function() {
+            $("#status").val('login');
+          submitForm();
+        });
+    });
+
+    </script>
+</head>
+
+<body>
+
+    <br/>
+    <br/>
+    <form id="myForm">
+    <div id="list" class="list">
+
+        <div class="item">
+            <label>Enter your name</label>
+          <input type="text" id="name" value="" style="Width:200px" />
+        </div>
+
+    </div>
+
+    <div class="item">
+        <input type="button" id="login" class="button button-block" value="Login" />
+    </div>
+      <input type="hidden" id="username" value="foo"/>
+      <input type="hidden" id="password" value="foo"/>
+      <input type="hidden" id="status" value="login"/>
+    </form>
+</body>
+
+</html>

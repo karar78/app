@@ -1,0 +1,411 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+
+
+
+
+    function resetForm() {
+        document.getElementById("myForm").reset();
+    }
+
+    function randArr(){
+        var arr = [];
+        while(arr.length < 4){
+            var r = Math.floor(Math.random() * 4) + 1;
+            if(arr.indexOf(r) === -1) arr.push(r);
+        }
+        return arr;
+    }
+
+    function randomizeAnswers(){
+
+      for(i=0;i<obj.length;i++){
+        arr=randArr();
+        /*
+        console.log("wrong1: "+ obj[i].wrong1);
+        console.log("wrong2: "+ obj[i].wrong2);
+        console.log("wrong3 "+ obj[i].wrong3);
+        console.log("wrong4: "+ obj[i].answer);
+        */
+        a = "wrong"+arr[0];
+        b = "wrong"+arr[1];
+        c = "wrong"+arr[2];
+        d = "wrong"+arr[3];
+
+
+        temp1 = obj[i]["wrong1"];
+        temp2 = obj[i]["wrong2"];
+        temp3 = obj[i]["wrong3"];
+        temp4 = obj[i]["answer"];
+
+        obj[i][a]=temp1;
+        obj[i][b]=temp2;
+        obj[i][c]=temp3;
+        obj[i][d]=temp4;
+
+        console.log("wrong1: "+ obj[i].wrong1 + ": " + a);
+        console.log("wrong2: "+ obj[i].wrong2 + ": " + b);
+        console.log("wrong3 "+ obj[i].wrong3 + ": " + c);
+        console.log("wrong4: "+ obj[i].wrong4 + ": " + d);
+      }
+
+
+
+    }
+    function displayRecord(recordNumber){
+      resetForm();
+      $("#recordNumber").val(recordNumber);
+      //var recordNumber = $("#recordNumber").val();
+      //var arr=randArr();
+        //console.log("obj in displayRecord: " + obj);
+
+      $("#question").text(obj[recordNumber].question);
+      $("label[for=answer1]").html(obj[recordNumber].wrong1);
+      $("label[for=answer2]").html(obj[recordNumber].wrong2);
+      $("label[for=answer3]").html(obj[recordNumber].wrong3);
+      $("label[for=answer4]").html(obj[recordNumber].wrong4);
+
+      $("#answer1").val(obj[recordNumber].wrong1);
+      $("#answer2").val(obj[recordNumber].wrong2);
+      $("#answer3").val(obj[recordNumber].wrong3);
+      $("#answer4").val(obj[recordNumber].wrong4);
+    //  $("label[for=answer2]").html(obj[recordNumber].wrong2);
+    //  $("label[for=answer3]").html(obj[recordNumber].wrong3);
+    //  $("label[for=answer4]").html(obj[recordNumber].answer);
+      var selectedVal = obj[recordNumber].selectedAnswer;
+
+      /*
+      console.log(":"+$("#answer1").val()+":");
+      console.log(":"+$("#answer2").val()+":");
+      console.log(":"+$("#answer3").val()+":");
+      console.log(":"+$("#answer4").val()+":");
+      console.log("Last selected:"+selectedVal+":");
+      */
+      if(selectedVal!=undefined){
+          console.log("selected value not undefined");
+        //  $('input[name=answers][value=' + obj[recordNumber].selectedAnswer + ']').prop('checked',true)
+        //  ('input:radio[name="answers"][value="+selectedVal+"]').prop('checked', true);
+        //$('[name="answers"]').removeAttr('checked');
+
+        $("input[name=answers][value='" + selectedVal.trim() + "']").attr('checked', 'checked');
+
+          //$('input:radio[name="#answer2"][value="AED"]').prop('checked', true);
+      }
+      selectedAnswer = $('input[name=answers]:checked', '#myForm').val();
+      console.log("Radio:"+selectedAnswer+":");
+    //  console.log("recordNumber: " + recordNumber);
+      if(recordNumber<obj.length-1){
+        $("#next").attr("disabled", false);
+      }
+      else {
+        //$("#next").hide();
+        //$("#next").attr("disabled", true);
+        $("#next").val("Submit");
+      }
+
+      if(recordNumber>0){
+        //$("#prev").show();
+        //$("#prev").attr("disabled", false);
+      }
+      else {
+      //  $("#prev").attr("disabled", true);
+      }
+
+    }
+
+    function pageLoaded(){
+      $("#start").hide();
+      $("#next").hide();
+      $("#info").hide();
+
+    }
+    $(document).ready(function() {
+        pageLoaded();
+      $("#start").click(function() {
+        //$("#next").attr("disabled", true);
+        //$("#prev").attr("disabled", true);
+        $("#start").attr("disabled", false);
+
+
+        $("#info").show();
+        $("#next").show();
+        $("#start").hide();
+        console.log("Timer: " + jsonObj.timer);
+        countDownStarts(jsonObj.timer);
+        displayRecord(0);
+
+        });
+
+      $("#next").click(function() {
+        if($("#next").val()=="Submit")
+          submitAnswers();
+        else{
+        recordNumber = $("#recordNumber").val();
+        recordNumber++;
+        displayRecord(recordNumber);
+      }
+      });
+
+/*
+      $("#prev").click(function() {
+        recordNumber = $("#recordNumber").val();
+        recordNumber--;
+      displayRecord(recordNumber);
+      });
+*/
+      $('#myForm input').on('change', function() {
+          recordNumber = $("#recordNumber").val();
+          selectedAnswer = $('input[name=answers]:checked', '#myForm').val();
+          //console.log(selectedAnswer);
+          obj[recordNumber].selectedAnswer=selectedAnswer;
+      });
+
+      $("#code").on("input", function(k) {
+        var code = $("#code").val();
+        var dataString = "code=" + code;
+        if(code.length==6){
+          localStorage.setItem("code", code);
+          k.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: host + "/quiz",
+            crossDomain: true,
+            data: dataString,
+            dataType: 'text',
+
+            xhrFields: {withCredentials: false},
+
+            cache: false,
+            headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+            beforeSend: function() {
+                $("#next").val('Loading...');
+            },
+            success: function (e) {
+              console.log(e);
+              jsonObj = jQuery.parseJSON(e);
+              obj = jsonObj.questions;
+              if(obj.length==0){ //Code does not exist
+                  msg = "<FONT color='RED'>Incorrect code !</FONT>";
+                  $("#coutdown").val(msg);
+                  return;
+              }
+              else{
+                $("#start").show();
+              }
+            //  obj = JSON.stringify(e);
+
+              console.log("ParseJSON : ", obj);
+
+              console.log("Original : ", e);
+
+
+
+
+              $("#code_div").hide();
+
+              $("#next").val('Next');
+
+              randomizeAnswers();
+              displayRecord(0);
+
+
+            },
+            error: function(xhr, status, error){
+              $("#insert").val('ERR');
+              if(xhr.status==401)
+                window.location.href = "index.html";
+            }
+        });
+      }
+      });
+        $("#insert").click(function() {
+            var question = $("#question").val();
+            var answer = $("#answer").val();
+            var options = $("#options").val();
+            var dataString = "question=" + question + "&answer=" + answer + "&options=" + options;
+            if ($.trim(question).length > 0 & $.trim(answer).length > 0 & $.trim(options).length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: host + "/quiz",
+                    crossDomain: true,
+                    data: dataString,
+                    dataType: 'text',
+
+                    cache: false,
+                    beforeSend: function() {
+                        $("#insert").val('Connecting...');
+                    },
+                    success: function (e) {
+                      $("#insert").val("Next");
+                      console.log("SUCCESS : ", e);
+                      resetForm();
+                    },
+                    statusCode: {
+                        401: function(responseObject, textStatus, jqXHR) {
+                            window.location.href = "index.html";
+                        },
+                        503: function(responseObject, textStatus, errorThrown) {
+                        }
+                    },
+
+                  error: function(xhr, status, error){
+                    $("#insert").val('ERR');
+                    if(xhr.statusCode==401)
+                      window.location.href = "index.html";
+                    }
+
+                });
+            }
+            return false;
+        });
+    });
+
+var timeleft;
+var downloadTimer;
+    function countDownStarts(t){
+      timeleft=t;
+      document.getElementById("countdown").innerHTML = "<FONT color='RED'>Quiz has started !</FONT>";
+      downloadTimer = setInterval(function(){
+        var sec = timeleft%60;
+        var min = Math.floor(timeleft/60);
+        var msg = "<FONT color='GREEN'>" + min + ":" + sec + "</FONT>";
+
+        if(timeleft<10)
+           msg = "<FONT color='RED'>" + min + ":" + sec + "</FONT>";
+
+        if(timeleft==0){
+          msg = "<FONT color='RED'>Time up !</FONT>";
+          $("#next").hide();
+        // $("#prev").hide();
+          submitAnswers();
+        }
+        if(timeleft <= 0){
+          clearInterval(downloadTimer);
+        }
+        document.getElementById("countdown").innerHTML = msg;
+        timeleft -= 1;
+      }, 1000);
+    }
+
+    function submitAnswers(){
+      for(var i = 0; i < obj.length; i++) {
+          delete obj[i]['wrong1'];
+          delete obj[i]['wrong2'];
+          delete obj[i]['wrong3'];
+          delete obj[i]['wrong4'];
+          delete obj[i]['question'];
+          delete obj[i]['quiz'];
+          delete obj[i]['answer'];
+      }
+      json = JSON.stringify(obj)
+      console.log(json);
+      //var dataString = "time=" + timeleft + "&answers=" + obj;
+      //var dataString = json + "&time=" + timeleft;
+      var user = localStorage.getItem('user');
+      var code = localStorage.getItem('code');
+      var dataString = json;
+      $.ajax({
+          type: "POST",
+          url: host + "/saveAnswers?time="+timeleft + "&user="+user+ "&code="+code,
+          crossDomain: true,
+          data: dataString,
+          dataType: 'json',
+          contentType:'application/json',
+
+          cache: false,
+          headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+          beforeSend: function() {
+              console.log(obj);
+              $("#countdown").val('Submitting your results');
+          },
+          success: function (e) {
+            console.log("Result : ", e);
+          //  obj = jQuery.parseJSON(e);
+          //var incorrectList = jQuery.parseJSON(e.list);
+          var incorrectList = e.list;
+            msg = "<FONT color='GREEN'>" +e.message + "</FONT>";
+            document.getElementById("countdown").innerHTML = msg;
+            var correctionMessage='<div id="info">';
+            for(i=0;i<incorrectList.length;i++){
+              correctionMessage+= '<div>'+ incorrectList[i].question +': ' + incorrectList[i].answer + '</div>';
+            }
+            correctionMessage+='</div>';
+            document.getElementById("list").innerHTML = correctionMessage;
+            $("#next").hide();
+            clearInterval(downloadTimer);
+          },
+          error: function(xhr, status, error){
+            $("#insert").val('ERR');
+            if(xhr.status==401)
+              window.location.href = "index.html";
+          }
+      });
+    }
+    </script>
+</head>
+
+<body>
+    <div class="bar bar-header bar-positive" style="margin-bottom:1px;">
+        <a class="button button-clear" href="create-quiz.html">New Quiz</a>
+        <h1 class="title">Play Quiz</h1>
+    </div>
+
+    <br/>
+
+    <br/>
+
+    <form id="myForm">
+    <div id="code_div">
+
+
+    <div>
+        <label>Code</label>
+        <input type="text" maxlength="6" id="code" value="" />
+    </div>
+  </div>
+
+  <H2 id="countdown">
+  </H2>
+      <div id="list" class="list">
+
+        <div id="info">
+          <h3 id="question"></h3>
+
+
+          <div><input type="radio" class="radio"  id="answer1" name="answers" value =""/><label for="answer1"></label></div>
+          <div><input type="radio" class="radio"  id="answer2" name="answers" value ="" /><label for="answer2"></label></div>
+          <div><input type="radio" class="radio"  id="answer3" name="answers" value ="" /><label for="answer3"></label></div>
+          <div><input type="radio" class="radio"  id="answer4" name="answers" value ="" /><label for="answer4"></label></div>
+        </div>
+
+        <div class="item">
+            <!-- <input type="button" id="prev" class="button button-block" value="Prev" />  -->
+            <input type="button" id="next" class="button button-block" value="Next" />
+            <input type="button" id="start" class="button button-block" value="Start" />
+        </div>
+
+      </div>
+
+    </form>
+
+    <input type="hidden" id="recordNumber" value="-1"/>
+</body>
+
+</html>
