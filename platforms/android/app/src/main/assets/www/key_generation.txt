@@ -11,5 +11,6 @@ zipalign -v 4 app-release-unsigned.apk quiz-master.apk
 
 
 cordova build android --prod --release -- --packageType=bundle
+jarsigner -storetype pkcs12 -keystore mykeystore.p12 app.aab "ks-localhost"
 
 

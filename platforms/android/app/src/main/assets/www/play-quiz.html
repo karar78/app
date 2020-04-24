@@ -137,6 +137,24 @@
 
     }
     $(document).ready(function() {
+      $(function() {
+        $("#navigation").load("nav.html");
+
+        //load quiz code if there is any and automatically submit. This is coming from another page
+        inputElement = document.getElementById("code");
+        inputElement.value = localStorage.getItem("tmp");
+
+          var code = $("#code").val();
+
+        if(code.length==6){
+          console.log("about to fire");
+            localStorage.removeItem("tmp");
+          loadGame();
+        }
+
+        //Code ends
+      });
+      document.getElementById("code").focus();
         pageLoaded();
       $("#start").click(function() {
         //$("#next").attr("disabled", true);
@@ -178,11 +196,15 @@
       });
 
       $("#code").on("input", function(k) {
+        k.preventDefault();
+        loadGame();
+      });
+
+      function  loadGame() {
         var code = $("#code").val();
         var dataString = "code=" + code;
         if(code.length==6){
           localStorage.setItem("code", code);
-          k.preventDefault();
         $.ajax({
             type: "GET",
             url: host + "/quiz",
@@ -201,12 +223,19 @@
               console.log(e);
               jsonObj = jQuery.parseJSON(e);
               obj = jsonObj.questions;
-              if(obj.length==0){ //Code does not exist
+              if(obj==null){ //Code does not exist
                   msg = "<FONT color='RED'>Incorrect code !</FONT>";
-                  $("#coutdown").val(msg);
+                //  $("#countdown").val(msg);
+                  document.getElementById("countdown").innerHTML = msg;
+                  //$("#countdown").show();
                   return;
               }
               else{
+
+                msg = "<FONT color='GREEN'>Total Questions: " + obj.length + "<BR>Total Time: " + jsonObj.timer +" seconds</FONT>";
+                console.log(msg);
+                document.getElementById("countdown").innerHTML = msg;
+                //$("#countdown").show();
                 $("#start").show();
               }
             //  obj = JSON.stringify(e);
@@ -234,7 +263,7 @@
             }
         });
       }
-      });
+    }
         $("#insert").click(function() {
             var question = $("#question").val();
             var answer = $("#answer").val();
@@ -299,7 +328,10 @@ var downloadTimer;
         if(timeleft <= 0){
           clearInterval(downloadTimer);
         }
-        document.getElementById("countdown").innerHTML = msg;
+        var recordNumber = $("#recordNumber").val();
+        recordNumber++;
+        msg2 =  "(" + recordNumber + "/" + obj.length + ")";
+        document.getElementById("countdown").innerHTML = msg + " " + msg2;
         timeleft -= 1;
       }, 1000);
     }
@@ -344,7 +376,7 @@ var downloadTimer;
             document.getElementById("countdown").innerHTML = msg;
             var correctionMessage='<div id="info">';
             for(i=0;i<incorrectList.length;i++){
-              correctionMessage+= '<div>'+ incorrectList[i].question +': ' + incorrectList[i].answer + '</div>';
+              correctionMessage+= '<div> - '+ incorrectList[i].question +': ' + incorrectList[i].answer + '</div>';
             }
             correctionMessage+='</div>';
             document.getElementById("list").innerHTML = correctionMessage;
@@ -362,14 +394,7 @@ var downloadTimer;
 </head>
 
 <body>
-    <div class="bar bar-header bar-positive" style="margin-bottom:1px;">
-        <a class="button button-clear" href="create-quiz.html">New Quiz</a>
-        <h1 class="title">Play Quiz</h1>
-    </div>
-
-    <br/>
-
-    <br/>
+      <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
 
     <form id="myForm">
     <div id="code_div">
@@ -377,7 +402,7 @@ var downloadTimer;
 
     <div>
         <label>Code</label>
-        <input type="text" maxlength="6" id="code" value="" />
+        <input type="text" maxlength="6" id="code" value=""  style="Width:200px; text-transform: uppercase;" />
     </div>
   </div>
 

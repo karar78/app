@@ -1,0 +1,156 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+
+    function resetForm() {
+        document.getElementById("myForm").reset();
+    }
+
+    function completeProcess(){
+      var status = $("#status").val();
+      var code = $("#code").val();
+      var time = $("#time").val();
+      var dataString =  "status=" + status + "&code=" + code + "&time=" + time;
+      if ($.trim(time).length > 0 ) {
+          $.ajax({
+              type: "POST",
+              url: host + "/quiz",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+
+              $('#list').html('<div class="item"><label>Your Code for this quiz is: </label><H1>'+obj.code+'</H1>  </div>');
+
+                console.log("Result : ", e);
+              },
+              error: function (e) {
+                $("#next").val('ERR');
+                console.log("ERROR : ", e.responseText);
+
+    }
+
+          });
+      }
+      return false;
+    }
+
+    function getNewQuizzes(){
+      var name = localStorage.getItem('user');
+      var dataString = "user=" + name;
+      console.log("name: " + name);
+      if ($.trim(name).length > 0 ) {
+          $.ajax({
+              type: "GET",
+              url: host + "/new_quizzes",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+              xhrFields: {withCredentials: false},
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+                console.log("Result : ", e);
+                if(obj.length>0){//We got some data
+                  console.log("We got some data");
+                  var table = document.getElementById("myTable");
+                  for(i=0;i<obj.length;i++){
+                    var row = table.insertRow((i+1));
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    cell1.innerHTML = '<input type="button" onclick="playQuiz(&#39;' + obj[i].code +'&#39;)" class="button button-block2" value="'+ obj[i].code +'" />';
+                    cell2.innerHTML = (obj[i].topper!=null && obj[i].topper.length)>12?obj[i].topper.substring(0,12):obj[i].topper;
+
+                    var dateStr = "";
+                    if(obj[i].creationDate!=undefined){
+                      var date = new Date(obj[i].creationDate);
+                      dateStr = date.getDate() + "/" + (date.getMonth()+1);
+                    }
+                    cell3.innerHTML = dateStr;
+                    cell4.innerHTML = (obj[i].owner!=null && obj[i].owner.length>12)?obj[i].owner.substring(0,12):obj[i].owner;
+                    cell5.innerHTML = obj[i].section;
+                  }
+                }
+              },
+              error: function(xhr, status, error){
+                console.log("We got some error");
+              //  $("#insert").val('ERR');
+                if(xhr.status==401)
+                  window.location.href = "index.html";
+              }
+
+          });
+      }
+      return false;
+    }
+
+    $(document).ready(function() {
+      $(function() {
+        $("#navigation").load("nav.html");
+        getNewQuizzes();
+      });
+    });
+
+    function playQuiz(code){
+     localStorage.setItem("tmp", code);
+     window.location.href = "play-quiz.html";
+    }
+    </script>
+</head>
+
+<body>
+    <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
+
+    <form id="myForm">
+    <div id="list" class="list">
+
+          <table id="myTable" border=1 Width="100%">
+
+            <thead>
+            <tr>
+              <td><h5>Quiz<h5></td>
+              <td><h5>Topper<h5></td>
+              <td><h5>Date<h5></td>
+              <td><h5>Creator<h5></td>
+              <td><h5>Section<h5></td>
+            </tr>
+          </thead>
+
+          <tbody>
+
+          <tbody>
+        </table>
+
+    </div>
+
+    <div class="item">
+
+    </div>
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+    </form>
+</body>
+
+</html>

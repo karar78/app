@@ -57,6 +57,15 @@
       return false;
     }
     $(document).ready(function() {
+      
+       var input = document.getElementById("name");
+       input.focus();
+       $("#myForm").submit(function() {
+         $("#login").click();
+         return false;
+       });
+
+
         $("#login").click(function() {
             $("#status").val('login');
           submitForm();

@@ -1,0 +1,109 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+
+
+    function getRanking(){
+      var name = localStorage.getItem('user');
+      var code = localStorage.getItem('tmp');
+      var dataString = "name=" + name + "&code=" + code;
+      console.log("name: " + name);
+      console.log("code: " + code);
+      if ($.trim(code).length > 0 ) {
+          $.ajax({
+              type: "GET",
+              url: host + "/detailRanking",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+              xhrFields: {withCredentials: false},
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+                console.log("Result : ", e);
+                if(obj.length>0){//We got some data
+                  console.log("We got some data");
+                  document.getElementById("quiz").innerHTML = "Quiz: "+ localStorage.getItem('tmp');
+                  var table = document.getElementById("myTable");
+                  for(i=0;i<obj.length;i++){
+                    var row = table.insertRow((i+1));
+                    var cell1 = row.insertCell((0));
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    cell1.innerHTML = (i+1);
+                    cell2.innerHTML = obj[i].user.substring(0,12);
+                    cell3.innerHTML = obj[i].percent;
+                    cell4.innerHTML = obj[i].time;
+                  }
+                }
+              },
+              error: function(xhr, status, error){
+                console.log("We got some error");
+              //  $("#insert").val('ERR');
+                if(xhr.status==401)
+                  window.location.href = "index.html";
+              }
+
+          });
+      }
+      return false;
+    }
+    $(document).ready(function() {
+      $(function() {
+        $("#navigation").load("nav.html");
+        getRanking();
+      });
+
+    });
+
+    </script>
+</head>
+
+<body>
+    <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
+
+    <form id="myForm">
+    <div id="list" class="list">
+
+      <H2 id="quiz">
+      </H2>
+      <table id="myTable" border=1 Width="100%">
+
+        <thead>
+      <tr>
+        <td><H4>Pos.</H4></td>
+        <td><H4>User</H4></td>
+        <td><H4>%age</H4></td>
+        <td><H4>Time</H4></td>
+      </tr>
+     </thead>
+
+<tbody>
+
+  <tbody>
+</table>
+
+    </div>
+
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+    </form>
+</body>
+
+</html>
