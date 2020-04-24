@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.karar.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Quiz Master</name>
-
+<widget id="com.karar.app" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Quiz Master++</name>
+    <android-versionCode>1.1</android-versionCode>
     <description>
-        Quiz Master
+      Speaking Quiz Master++. A unique app in which you can compete with others online. This app will also include
+      voice and speech functions later on. People would be able to create a quiz through speaking.
     </description>
     <author email="karar@haktechlondon.co.uk" href="http://cordova.io">
         Karar Haider
