@@ -99,7 +99,7 @@
       console.log("Last selected:"+selectedVal+":");
       */
       if(selectedVal!=undefined){
-          console.log("selected value not undefined");
+        //  console.log("selected value not undefined");
         //  $('input[name=answers][value=' + obj[recordNumber].selectedAnswer + ']').prop('checked',true)
         //  ('input:radio[name="answers"][value="+selectedVal+"]').prop('checked', true);
         //$('[name="answers"]').removeAttr('checked');
@@ -231,10 +231,38 @@
                   return;
               }
               else{
-
-                msg = "<FONT color='GREEN'>Total Questions: " + obj.length + "<BR>Total Time: " + jsonObj.timer +" seconds</FONT>";
+                var dateStr = "";
+                if(jsonObj.creationDate!=undefined){
+                  var date = new Date(jsonObj.creationDate);
+                  dateStr = date.getDate() + "/" + (date.getMonth()+1);
+                }
+                msg = "<table id='myTable' border=1 Width='100%'>"
+                      +"  <thead>"
+                      +"<tr>"
+                      +"  <td><H5>Total</H5></td>"
+                      +"  <td><H5>Time</H5></td>"
+                      +"  <td><H5>Section</H5></td>"
+                      +"  <td><H5>Created by</H5></td>"
+                      +"  <td><H5>Created on</H5></td>"
+                      +"</tr>"
+                     +"</thead>"
+                     +"<tbody>"
+                     +"<tr>"
+                     +" <td><H6>" + obj.length + "</H6></td>"
+                     +" <td><H6>" + jsonObj.timer + " secs</H6></td>"
+                     +" <td><H6>" + jsonObj.section + "</H6></td>"
+                      +"<td><H6>" + jsonObj.owner + "</H6></td>"
+                     +" <td><H6>" + dateStr + "</H6></td>"
+                     +"</tr>"
+                     +"</tbody>"
+                     +"</TABLE>" ;
+                // +"<FONT color='GREEN'>Total Questions: " + obj.length + "<BR>Total Time: " + jsonObj.timer +" seconds"
+                // + "<BR>Created by: " + jsonObj.owner
+                // + "<BR>Created on: " + jsonObj.creationDate
+                // + "<BR>Section: " + jsonObj.section
+                // + "</FONT>";
                 console.log(msg);
-                document.getElementById("countdown").innerHTML = msg;
+                document.getElementById ("countdown").innerHTML = msg;
                 //$("#countdown").show();
                 $("#start").show();
               }
@@ -364,6 +392,8 @@ var downloadTimer;
           cache: false,
           headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
           beforeSend: function() {
+            $("#next").hide();
+            clearInterval(downloadTimer);
               console.log(obj);
               $("#countdown").val('Submitting your results');
           },
@@ -380,8 +410,8 @@ var downloadTimer;
             }
             correctionMessage+='</div>';
             document.getElementById("list").innerHTML = correctionMessage;
-            $("#next").hide();
-            clearInterval(downloadTimer);
+            //$("#next").hide();
+            //clearInterval(downloadTimer);
           },
           error: function(xhr, status, error){
             $("#insert").val('ERR');

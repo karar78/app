@@ -1,0 +1,192 @@
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+    style-src * 'self' 'unsafe-inline';
+    connect-src * ;
+    script-src * 'self' 'unsafe-inline';
+    media-src *">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/ionic.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+     <script src="cordova.js"></script>
+    <script type="text/javascript">
+
+
+    function completeProcess(){
+      var status = $("#status").val();
+      var code = $("#code").val();
+      var time = $("#time").val();
+      var section = $("#section").val();
+      var priv = $('input[name=priv]:checked', '#myForm').val();
+      if(priv==undefined)
+          priv="no";
+      var user = localStorage.getItem('user');
+      var dataString =  "status=" + status + "&code=" + code + "&time=" + time + "&section=" + section + "&user=" + user + "&priv=" + priv;
+      if ($.trim(time).length > 0 ) {
+          $.ajax({
+              type: "POST",
+              url: host + "/quiz",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+
+              $('#list').html('<div class="item"><label>Your Code for this quiz is: </label><H1>'+obj.code+'</H1>  </div>');
+
+                console.log("Result : ", e);
+              },
+              error: function (e) {
+                $("#next").val('ERR');
+                console.log("ERROR : ", e.responseText);
+
+    }
+
+          });
+      }
+      return false;
+    }
+
+    function submitForm(){
+      var question = $("#question").val();
+      question = question.replace('+', '%2B');
+      var answer = $("#answer").val();
+      var wrong1 = $("#wrong1").val();
+      var wrong2 = $("#wrong2").val();
+      var wrong3 = $("#wrong3").val();
+      var status = $("#status").val();
+      var code = $("#code").val();
+
+      var dataString = "question=" + question + "&answer=" + answer + "&wrong1=" + wrong1 + "&wrong2=" + wrong2 + "&wrong3=" + wrong3 + "&status=" + status + "&code=" + code;
+      if ($.trim(question).length > 0 & $.trim(answer).length > 0 & $.trim(wrong1).length > 0 & $.trim(wrong2).length > 0 & $.trim(wrong3).length > 0) {
+          $.ajax({
+              type: "POST",
+              url: host + "/quiz",
+              crossDomain: true,
+              data: dataString,
+              dataType: 'text',
+              xhrFields: {withCredentials: false},
+              cache: false,
+              headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+              success: function (e) {
+                var obj = jQuery.parseJSON(e);
+                console.log("Result : ", e);
+                if(obj.status=="next"){//Next button is pressed. Keeps on adding questions
+                    $("#next").val("Next");
+                    var obj = jQuery.parseJSON(e);
+                    console.log("Code: " + obj.code);
+                    resetForm();
+                    localStorage.setItem('code', obj.code);
+                    document.getElementById("code").value= obj.code;
+                }
+                else if(obj.status=="finish"){//Finish button is pressed. remove form and ask for timer
+                  $("#next").hide();
+                  $("#finish").hide();
+                  $('#list').html('<div class="item"><label>Total Time in Seconds</label><input type="text" id="time" value="" style="Width:200px" />  </div>'
+                                    + ' <BR><div><input type="checkbox" id="priv" name="priv" value="yes"> <label for="priv">Make this quiz private</label></div>'
+                                    + '<BR><div><label>Section </label>(Science, GK, Space etc)<input type="text" id="section" value="" style="Width:300px" />  </div>');
+                    console.log("Code: " + obj.code);
+
+                    document.getElementById("code").value= obj.code;
+                    $('#submit1').show();
+                }
+                else if(obj.status=="submit"){//Next button is pressed. Keeps on adding questions
+                    $('#list').html('<div class="item">  <label>Code: '+obj.code + '</label></div>');
+                    console.log("Code: " + obj.code);
+
+                    document.getElementById("code").value= obj.code;
+                }
+              },
+              error: function(xhr, status, error){
+                $("#insert").val('ERR');
+                if(xhr.status==401)
+                  window.location.href = "index.html";
+              }
+
+          });
+      }
+      return false;
+    }
+    $(document).ready(function() {
+      $(function() {
+        $("#navigation").load("nav.html");
+      });
+
+        $("#submit1").hide();
+        $("#next").click(function() {
+            $("#status").val('next');
+          submitForm();
+        });
+
+        $("#finish").click(function() {
+            $("#status").val('finish');
+          submitForm();
+        });
+        $("#submit1").click(function() {
+            $("#next").hide();
+            $("#finish").hide();
+            $("#submit1").hide();
+          $("#status").val('submit');
+          completeProcess();
+        });
+    });
+
+    </script>
+</head>
+
+<body>
+      <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
+    <form id="myForm">
+    <div id="list" class="list">
+
+        <div class="item">
+            <label>Question</label>   <input type="button" id="questionBtn" class="button button-block2" value="Record" onclick="captureAudio('q')" />
+            	<div id="questionArea" onclick="playAudio()"></div>
+            <textarea id="question"> </textarea>
+        </div>
+        <div class="item">
+            <label>Correct Answer</label> <input type="button" id="answerBtn" class="button button-block2" value="Record" onclick="captureAudio('a')" />
+            	<div id="answerArea" onclick="playAudio()"></div>
+            <input type="text" id="answer" value="" />
+        </div>
+        <div class="item">
+            <label>Wrong answer 1</label><input type="button" id="wrong1Btn" class="button button-block2" value="Record" onclick="captureAudio('w1')" />
+            	<div id="wrong1Area" onclick="playAudio()"></div>
+            <input type="text" id="wrong1" value="" />
+        </div>
+
+        <div class="item">
+            <label>Wrong answer 2</label><input type="button" id="wrong2Btn" class="button button-block2" value="Record" onclick="captureAudio('w2')" />
+            	<div id="wrong2Area" onclick="playAudio()"></div>
+            <input type="text" id="wrong2" value="" />
+        </div>
+
+        <div class="item">
+            <label>Wrong answer 3</label><input type="button" id="wrong3Btn" class="button button-block2" value="Record" onclick="captureAudio('w3')" />
+            	<div id="wrong3Area" onclick="playAudio()"></div>
+            <input type="text" id="wrong3" value="" />
+        </div>
+
+    </div>
+
+    <div class="item">
+        <input type="hidden" id="time" value="20"/>
+        <input type="button" id="next" class="button button-block" value="Next" />
+        <input type="button" id="finish" class="button button-block" value="Finish" />
+    </div>
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+      <input type="button" id="submit1" class="button button-block" value="Submit" />
+    </form>
+</body>
+
+</html>

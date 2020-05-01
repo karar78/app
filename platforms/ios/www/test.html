@@ -1,0 +1,146 @@
+
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+  content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+  style-src * 'self' 'unsafe-inline';
+  connect-src * ;
+  script-src * 'self' 'unsafe-inline';
+  media-src *">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/ionic.css">
+  <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/config.js"></script>
+   <script src="cordova.js"></script>
+  <script type="text/javascript">
+
+
+
+
+    function uploadFile() {
+    var fileURL = localStorage.getItem("question");
+    host = "https://192.168.0.103:8443";
+    var uri = encodeURI(host + "/quiz");
+    var params =  {
+    }
+
+    console.log("kararfile2: " + fileURL);
+    var options = new FileUploadOptions();
+    options.fileKey = 'file';
+    options.fileName = fileURL.substr(fileURL.lastIndexOf('/')+1);
+    options.mimeType = "audio/m4a";
+
+    options.headers = {
+      'Authorization': "Bearer "+localStorage.getItem('token')
+    };
+    options.params = params;
+    options.chunkedMode = false;
+    var ft = new FileTransfer();
+
+    ft.upload(fileURL, uri, function(){
+        alert("Successfully updated Round Image");
+    }, function (err) {
+        alert('There was an error uploading the media. Please try again later. Error: ' + err);
+    }, options, true);
+
+}
+
+
+//       function uploadFile() {
+//          var fileURL = localStorage.getItem("question");
+//         // host = "http://192.168.0.103:8080";
+//          var uri = encodeURI(host + "/uploadFile");
+//
+//
+//          var options = new FileUploadOptions();
+//          options.fileKey = "file";
+//          options.fileName = fileURL.substr(fileURL.lastIndexOf('/')+1);
+//          options.mimeType = "audio/m4a";
+//
+//          var params = {};
+//          params.value1 = "test";
+//          params.value2 = "param";
+//          options.params = params;
+//
+//          var ft = new FileTransfer();
+//
+//         // alert(fileURL);
+//          //alert(uri);
+//          ft.upload(fileURL, uri, onSuccess, onError, options);
+// }
+//          function onSuccess(r) {
+//             alert("response = " + r);
+//             console.log("Response = " + r.response);
+//             console.log("Sent = " + r.bytesSent);
+//          }
+//
+//          function onError(error) {
+//            alert(error);
+//             alert("An error has occurred: Code = " + error.code);
+//             alert("upload error source " + error.source);
+//             alert("upload error target " + error.target);
+//          }
+//
+//
+//
+//   }
+//
+
+
+
+
+
+  function captureAudio() {
+	   navigator.device.capture.captureAudio(captureSuccess, captureError);
+	}
+
+function playMP3() {
+    media.play();
+}
+
+function captureError(e) {
+    console.log("capture error: "+JSON.stringify(e));
+}
+
+function captureSuccess(s) {
+//  alert(s[0].fullPath);
+    console.log("Success");
+    var a="<audio controls>"
+    	a += "<source src='" + s[0].fullPath + "' type='video/mp4'>";
+    a += "</audio>";
+    localStorage.setItem("question", s[0].fullPath);
+    document.querySelector("#audioArea").innerHTML = a;
+
+}
+
+    </script>
+  </head>
+
+  <body>
+    <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
+
+    <form id="myForm">
+      <div id="list" class="list">
+        <div data-role="page" id="page">
+    			<div data-role="content" style="padding: 15px">
+					<a href="#" data-role="button" onclick="captureAudio()">audio</a>
+					<div id="audioArea" onclick="playMP3()"></div>
+				</div>
+    		</div>
+
+
+      </div>
+
+      <div class="item">
+<input type="button" id="wrong2Btn" class="button button-block2" value="Upload" onclick="uploadFile()" />
+      </div>
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+    </form>
+  </body>
+
+  </html>

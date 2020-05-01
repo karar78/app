@@ -12,6 +12,34 @@
     },
     "cordova-plugin-console": {
       "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-media-capture": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-app-version": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-audio-recorder": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-media": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-network-information": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-file-transfer": {
+      "PACKAGE_NAME": "com.karar.app"
+    },
+    "cordova-plugin-advanced-http": {
+      "OKHTTP_VERSION": "3.10.0",
+      "PACKAGE_NAME": "com.karar.app"
     }
   },
   "dependent_plugins": {}

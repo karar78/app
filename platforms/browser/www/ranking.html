@@ -17,9 +17,9 @@
     <script type="text/javascript">
 
 
-    function getRanking(){
+    function getRanking(nextPage){
       var name = localStorage.getItem('user');
-      var dataString = "name=" + name;
+      var dataString = "name=" + name + "&page=" + nextPage;
       console.log("name: " + name);
       if ($.trim(name).length > 0 ) {
           $.ajax({
@@ -27,24 +27,38 @@
               url: host + "/ranking",
               crossDomain: true,
               data: dataString,
-              dataType: 'text',
+              dataType: 'json',
+              contentType:'application/json',
               xhrFields: {withCredentials: false},
               cache: false,
               headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
               success: function (e) {
-                var obj = jQuery.parseJSON(e);
-                console.log("Result : ", e);
-                if(obj.length>0){//We got some data
-                  console.log("We got some data");
+                //console.log("Result : ", e);
+              //  var obj = jQuery.parseJSON(e);
+                var list = e.list;
+                if(list.length>0){//We got some data
+                  $("#page").val(e.page);
+                  if(e.prev=="no")
+                    $("#prev").hide();
+                  else
+                    $("#prev").show();
+
+                  if(e.next=="no")
+                    $("#next").hide();
+                  else
+                    $("#next").show();
+
+                  //console.log("We got some data");
                   var table = document.getElementById("myTable");
-                  for(i=0;i<obj.length;i++){
+                   $("#myTable").find("tr:gt(0)").remove();
+                  for(i=0;i<list.length;i++){
                     var row = table.insertRow((i+1));
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);
-                    cell1.innerHTML = '<input type="button" onclick="detailRank(&#39;' + obj[i].code +'&#39;)" class="button button-block2" value="'+ obj[i].code +'" />';
-                    cell2.innerHTML = obj[i].user;
-                    cell3.innerHTML = obj[i].myRank;
+                    cell1.innerHTML = '<input type="button" onclick="detailRank(&#39;' + list[i].code +'&#39;)" class="button button-block2" value="'+ list[i].code +'" />';
+                    cell2.innerHTML = list[i].user;
+                    cell3.innerHTML = list[i].myRank;
                   }
                 }
               },
@@ -59,10 +73,24 @@
       }
       return false;
     }
+
     $(document).ready(function() {
       $(function() {
         $("#navigation").load("nav.html");
-        getRanking();
+        getRanking(1);
+      });
+
+
+      $("#next").click(function() {
+        nextPage = $("#page").val();
+        nextPage++;
+        getRanking(nextPage);
+      });
+
+      $("#prev").click(function() {
+        prevPage = $("#page").val();
+        prevPage--;
+        getRanking(prevPage);
       });
 
     });
@@ -82,24 +110,26 @@
     <div id="list" class="list">
 
       <table id="myTable" border=1 Width="100%">
-
         <thead>
-
-        <tr>
-          <td><h5>Quiz<h5></td>
-          <td><h5>Topper<h5></td>
-          <td><h5>My Rank<h5></td>
-        </tr>
+          <tr>
+            <td><h5>Quiz<h5></td>
+            <td><h5>Topper<h5></td>
+            <td><h5>My Rank<h5></td>
+          </tr>
       </thead>
-
-<tbody>
-
-  <tbody>
-</table>
+      <tbody>
+        <tbody>
+        </table>
 
     </div>
-
-      <input type="hidden" id="status" value=""/>
+    <table width="200px" style="margin: 0px auto;">
+      <tr>
+        <td Width="50%"><input type="button" id="prev" class="button button-block2" value="Prev" /></td>
+        <td Width="50%"><input type="button" id="next" class="button button-block2" value="Next" /></td>
+    </tr>
+    </table>
+    </div>
+      <input type="hidden" id="page" value="1"/>
       <input type="hidden" id="code" value=""/>
     </form>
 </body>

@@ -1,0 +1,149 @@
+
+<html>
+
+<head>
+
+  <meta http-equiv="Content-Security-Policy"
+  content="default-src * 'self' 'unsafe-inline' data: gap: 'unsafe-eval';
+  style-src * 'self' 'unsafe-inline';
+  connect-src * ;
+  script-src * 'self' 'unsafe-inline';
+  media-src *">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/ionic.css">
+  <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/config.js"></script>
+   <script src="cordova.js"></script>
+  <script type="text/javascript">
+
+
+//  var dd ="";
+// function prepareFile(){
+//   var fileURL = localStorage.getItem("question");
+//
+//
+//   var reader = new FileReader();
+//    reader.onload = function() {
+//
+//      var arrayBuffer = this.result,
+//        array = new Uint8Array(arrayBuffer),
+//        binaryString = String.fromCharCode.apply(null, array);
+//
+//      console.log("kk2:" + binaryString);
+//
+//    }
+//    reader.readAsArrayBuffer(fileURL);
+//
+// }
+//
+//   $(document).ready(function () {
+//
+//      // bind form submit event
+//      $("#myForm").on("submit", function (e) {
+//        console.log("kk3: " + fileURL);
+//          // cancel the default behavior
+//          e.preventDefault();
+//
+//
+//
+//       var formData = new FormData($(this)[0]);
+//       formData.append('question', dd);
+//
+//       console.log("kk4: " + formData);
+//
+//
+//        $.ajax({
+//            url: encodeURI(host + "/uploadFile"),
+//            type: "POST",
+//            processData: false,
+//            contentType: false,
+//            dataType : 'json',
+//            data: formData,
+//            headers:{'Authorization': "Bearer "+localStorage.getItem('token')},
+//            success: function (res) {
+//                  alert(res);
+//              },
+//              error: function (err) {
+//                 console.error("kk5: " + err);
+//             }
+//         });
+//     });
+// });
+
+    function uploadFile() {
+        var fileURL = localStorage.getItem("question");
+        host = "https://192.168.0.103:8443";
+        var uri = encodeURI(host + "/uploadFile");
+        var params =  {
+        }
+
+        var options = new FileUploadOptions();
+        options.fileKey = 'file';
+        options.fileName = fileURL.substr(fileURL.lastIndexOf('/')+1);
+        options.mimeType = "audio/m4a";
+
+        options.headers = {
+          'Authorization': "Bearer "+localStorage.getItem('token')
+        };
+        options.params = params;
+        options.chunkedMode = false;
+        var ft = new FileTransfer();
+
+        ft.upload(fileURL, uri, function(){
+            alert("Successfully updated Round Image");
+        }, function (err) {
+            console.log('There was an error uploading the media. Please try again later. Error: ' + err);
+        }, options, true);
+      }
+
+
+      function captureAudio() {
+	       navigator.device.capture.captureAudio(captureSuccess, captureError);
+       }
+
+       function playMP3() {
+         media.play();
+       }
+
+       function captureError(e) {
+         console.log("capture error: "+JSON.stringify(e));
+       }
+
+       function captureSuccess(s) {
+         console.log("Success");
+         var a="<audio controls>"
+    	       a += "<source src='" + s[0].fullPath + "' type='video/mp4'>";
+             a += "</audio>";
+         localStorage.setItem("question", s[0].fullPath);
+         document.querySelector("#audioArea").innerHTML = a;
+}
+    </script>
+  </head>
+
+  <body>
+    <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
+
+    <form id="myForm" action="" enctype="multipart/form-data">
+      <div id="list" class="list">
+        <div data-role="page" id="page">
+    			<div data-role="content" style="padding: 15px">
+					<a href="#" data-role="button" onclick="captureAudio()">audio</a>
+					<div id="audioArea" onclick="playMP3()"></div>
+				</div>
+    		</div>
+
+
+      </div>
+
+      <div class="item">
+<input type="button" id="wrong2Btn" class="button button-block2" value="Upload" onclick="uploadFile()" />
+      </div>
+      <input type="hidden" id="status" value=""/>
+      <input type="hidden" id="code" value=""/>
+      <input type="hidden" id="question" value=""/>
+    </form>
+  </body>
+
+  </html>

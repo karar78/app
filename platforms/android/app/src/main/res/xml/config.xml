@@ -1,18 +1,49 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.karar.app" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.karar.app" version="1.0.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <name>Quiz Master</name>
-    <android-versionCode>1.1</android-versionCode>
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <allow-navigation href="cdvfile:*" />
+    <feature name="Capture">
+        <param name="android-package" value="org.apache.cordova.mediacapture.Capture" />
+    </feature>
+    <feature name="AppVersion">
+        <param name="android-package" value="uk.co.whiteoctober.cordova.AppVersion" />
+    </feature>
+    <feature name="AudioRecorderPlugin">
+        <param name="android-package" value="com.outsystems.audiorecorder.AudioRecorderPlugin" />
+    </feature>
+    <feature name="Media">
+        <param name="android-package" value="org.apache.cordova.media.AudioHandler" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="NetworkStatus">
+        <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
+    </feature>
+    <feature name="FileTransfer">
+        <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
+    </feature>
+    <feature name="CordovaHttpPlugin">
+        <param name="android-package" value="com.silkimen.cordovahttp.CordovaHttpPlugin" />
+    </feature>
+    <name>Quiz Master 2020++</name>
+    <android-versionCode>1..0.5</android-versionCode>
     <description>
-        Quiz Master
+      Speaking Quiz Master 2020++. A unique app in which you can compete with others online. This app will also include
+      voice and speech functions later on. People would be able to create a quiz through speaking.
     </description>
     <author email="karar@haktechlondon.co.uk" href="http://cordova.io">
         Karar Haider
     </author>
     <content src="index.html" />
+    <icon src="www/img/logo.png" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -21,6 +52,11 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
+    <resource-file src="www/certificates/certificate.cer" target="app/src/main/assets/certificate.cer" />
+    <resource-file src="www/certificates/karar_chain.cer" target="app/src/main/assets/karar_chain.cer" />
+    <resource-file src="www/certificates/bangash_sub.cer" target="app/src/main/assets/bangash_sub.cer" />
+    <resource-file src="www/certificates/myKeystore.crt" target="app/src/main/assets/myKeystore.crt" />
+    <resource-file src="www/certificates/myKeystore.p12" target="app/src/main/assets/myKeystore.p12" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="Orientation" value="portrait" />
 </widget>

@@ -14,13 +14,14 @@
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/config.js"></script>
+    <script src="cordova.js"></script>
     <script type="text/javascript">
 
     function submitForm(){
       var username = $("#username").val();
       var password = $("#password").val();
       var status = $("#status").val();
-      var name = $("#name").val();
+      var name = $("#name").val().trim();
       localStorage.setItem('user', name);
       var dataString = "username=" + username + "&password=" + password + "&status=" + status + "&name=" + name;
       if ($.trim(name).length > 0 ) {
@@ -39,6 +40,16 @@
                 if(obj.status=="success"){//Successfully logged in
                     console.log("Token: " + obj.token);
                     localStorage.setItem('token', obj.token);
+
+
+                    cordova.getAppVersion.getVersionNumber(function(versionNumber){
+                      versionNumber = versionNumber.trim();
+                      console.log("version number", versionNumber);
+                      if(versionNumber!=obj.version)
+                          window.location.href = "reinstall-required.html";
+                          return false;
+                    });
+                    //console.log(versionNumber + ":" + obj.version);
                     window.location.href = "create-quiz.html";
                 }
                 else if(obj.status=="fail"){//Finish button is pressed. remove form and ask for timer
@@ -57,6 +68,15 @@
       return false;
     }
     $(document).ready(function() {
+
+       var input = document.getElementById("name");
+       input.focus();
+       $("#myForm").submit(function() {
+         $("#login").click();
+         return false;
+       });
+
+
         $("#login").click(function() {
             $("#status").val('login');
           submitForm();
@@ -75,7 +95,7 @@
 
         <div class="item">
             <label>Enter your name</label>
-          <input type="text" id="name" value="" style="Width:200px" />
+          <input type="text" id="name" value="" style="Width:200px" maxlength="12" />
         </div>
 
     </div>

@@ -24,7 +24,12 @@
       var status = $("#status").val();
       var code = $("#code").val();
       var time = $("#time").val();
-      var dataString =  "status=" + status + "&code=" + code + "&time=" + time;
+      var section = $("#section").val();
+      var priv = $('input[name=priv]:checked', '#myForm').val();
+      if(priv==undefined)
+          priv="no";
+      var user = localStorage.getItem('user');
+      var dataString =  "status=" + status + "&code=" + code + "&time=" + time + "&section=" + section + "&user=" + user + "&priv=" + priv;
       if ($.trim(time).length > 0 ) {
           $.ajax({
               type: "POST",
@@ -55,14 +60,15 @@
 
     function submitForm(){
       var question = $("#question").val();
+      question = question.replace('+', '%2B');
       var answer = $("#answer").val();
       var wrong1 = $("#wrong1").val();
       var wrong2 = $("#wrong2").val();
       var wrong3 = $("#wrong3").val();
       var status = $("#status").val();
       var code = $("#code").val();
-      var time = $("#time").val();
-      var dataString = "question=" + question + "&answer=" + answer + "&wrong1=" + wrong1 + "&wrong2=" + wrong2 + "&wrong3=" + wrong3 + "&status=" + status + "&code=" + code + "&time=" + time;
+
+      var dataString = "question=" + question + "&answer=" + answer + "&wrong1=" + wrong1 + "&wrong2=" + wrong2 + "&wrong3=" + wrong3 + "&status=" + status + "&code=" + code;
       if ($.trim(question).length > 0 & $.trim(answer).length > 0 & $.trim(wrong1).length > 0 & $.trim(wrong2).length > 0 & $.trim(wrong3).length > 0) {
           $.ajax({
               type: "POST",
@@ -87,7 +93,9 @@
                 else if(obj.status=="finish"){//Finish button is pressed. remove form and ask for timer
                   $("#next").hide();
                   $("#finish").hide();
-                  $('#list').html('<div class="item"><label>Total Time in Seconds</label><input type="text" id="time" value="" />  </div>');
+                  $('#list').html('<div class="item"><label>Total Time in Seconds</label><input type="text" id="time" value="" style="Width:200px" />  </div>'
+                                    + ' <BR><div><input type="checkbox" id="priv" name="priv" value="yes"> <label for="priv">Make this quiz private</label></div>'
+                                    + '<BR><div><label>Section </label>(Science, GK, Space etc)<input type="text" id="section" value="" style="Width:300px" />  </div>');
                     console.log("Code: " + obj.code);
 
                     document.getElementById("code").value= obj.code;
@@ -111,6 +119,10 @@
       return false;
     }
     $(document).ready(function() {
+      $(function() {
+        $("#navigation").load("nav.html");
+      });
+
         $("#submit1").hide();
         $("#next").click(function() {
             $("#status").val('next');
@@ -134,12 +146,7 @@
 </head>
 
 <body>
-    <div class="bar bar-header bar-positive" style="margin-bottom:1px;">
-        <h1 class="title">New Quiz</h1>
-        <a class="button button-clear" href="play-quiz.html">Play Quiz</a>
-    </div>
-    <br/>
-    <br/>
+      <div id="navigation" class="topnav" style="margin-bottom:1px;"></div>
     <form id="myForm">
     <div id="list" class="list">
 
